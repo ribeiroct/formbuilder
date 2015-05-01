@@ -1,3 +1,8 @@
+require('../vendor/js/vendor.js');
+require('rivets');
+require('backbone');
+require('underscore');
+
 (function() {
   rivets.binders.input = {
     publishes: true,

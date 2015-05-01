@@ -1,5 +1,5 @@
 {
-  "name": "formbuilder",
+  "name": "dobtco-formbuilder",
   "version": "0.2.1",
   "homepage": "https://github.com/dobtco/formbuilder",
   "authors": [
@@ -9,33 +9,30 @@
     {
       "name": "Jonathan Kim",
       "email": "me@jonathan-kim.com",
-      "web": "http://jonathan-kim.com"
+      "url": "http://jonathan-kim.com"
     }
   ],
   "description": "Graphical form builder for the web.",
-  "main": "Gruntfile.coffee",
+  "main": "dist/formbuilder.js",
+  "style": "dist/formbuilder.css",
   "scripts": {
     "test": "grunt test"
   },
-  "devDependencies": {
-    "grunt": "~0.4.1",
-    "grunt-contrib-concat": "~0.3.0",
-    "grunt-contrib-coffee": "~0.7.0",
-    "grunt-contrib-cssmin": "~0.6.2",
-    "grunt-contrib-jst": "~0.5.1",
-    "grunt-contrib-stylus": "~0.9.0",
-    "grunt-contrib-uglify": "~0.2.5",
-    "grunt-contrib-watch": "~0.5.3",
-    "grunt-contrib-clean": "~0.4.0",
-    "grunt-release": "~0.6.0",
-    "grunt-karma": "~0.6.2",
-    "karma": "~0.10.4",
-    "mocha": "~1.13.0",
-    "karma-mocha": "~0.1.0",
-    "karma-safari-launcher": "~0.1.1",
-    "karma-chrome-launcher": "~0.1.0",
-    "karma-firefox-launcher": "~0.1.0",
-    "karma-phantomjs-launcher": "~0.1.0",
-    "karma-coffee-preprocessor": "~0.1.0"
-  }
+  "peerDependencies": {
+    "jquery": "~2.1.3",
+    "jquery-ui": "~1.10.3",
+    "font-awesome": "~4.0.0",
+    "backbone": "~1.1.0",
+    "backbone-deep-model": "~0.10.4",
+    "underscore": "~1.5.2"
+  },
+  "dependencies": {
+    "rivets": "~0.6.0"
+  },
+  "readme": "Formbuilder.js\n============\n\n#### Update 9/26/14\n\nI'm working on a new version of formbuilder that uses [formrenderer-base](https://github.com/dobtco/formrenderer-base) as a dependency. This will make it so that rendering a form for a user to fill out is as simple as plugging in your data from the builder. It's a bit of a chore to extract this stuff from [Screendoor](http://www.dobt.co/screendoor), but I hope to make some progress in the next month.\n\n-- @ajb\n\n-----\n\nFormbuilder is a graphical interface for letting users build their own webforms. Think Wufoo or Google Forms, but a lightweight component that can be integrated into your application.\n\n*Formbuilder.js only handles the client-side logic of creating a form. It will output a structured JSON representation of your form, but saving the form, rendering it on the server, and storing users' responses is all up to you. If you're using Rails, there is also [Formbuilder.rb](https://github.com/dobtco/formbuilder-rb), a Rails engine that's designed to provide this server-side functionality.*\n\n## Demo\n[Click here](http://dobtco.github.io/formbuilder/) to see Formbuilder in action.\n\n## Basic usage\n```\n<div id='formbuilder'></div>\n\n<script>\nvar formbuilder = new Formbuilder({ selector: '#formbuilder' });\n</script>\n```\n\nSee more usage examples in the [wiki](https://github.com/dobtco/formbuilder/wiki).\n\n## Design &amp; Dependencies\n\nFormbuilder itself is a pretty small codebase (6kb gzip'd javascript) but it *does* rely on some external libraries, namely Backbone &amp; Rivets. We use bower to manage our dependencies, which can be seen [here](https://github.com/dobtco/formbuilder/blob/gh-pages/bower.json). I'd like to reduce some of these in the future, (especially font-awesome, because that's just silly,) but for now that's what you'll have to include.\n\nFormbuilder consists of a few different components that all live in the `Formbuilder` namespace:\n\n- `Formbuilder.templates` are compiled Underscore.js templates that are used to render the Formbuilder interface. You can see these individual files in the `./templates` directory, but if you're including `formbuilder.js`, you don't need to worry about them.\n\n- `Formbuilder.fields` are the different kinds of inputs that users can add to their forms. We expose a simple API, `Formbuilder.registerField()`, that allows you to add more kinds of inputs.\n\n- `Formbuilder.views`\n\nBecause of its modular nature, Formbuilder is easy to customize. Most of the configuration lives in class variables, which means you can simply override a template or method. If you have questions, feel free to open an issue -- we've tried to bridge the gap between convention and configuration, but there's no guarantee that we were successful.\n\n## Data format\n\nKeeping with the customizable nature of Formbuilder, you are also able to modify how Formbuilder structures its JSON output. The [default keypaths](https://github.com/dobtco/formbuilder/blob/gh-pages/coffee/main.coffee#L20) are:\n\n```coffeescript\nSIZE: 'field_options.size'\nUNITS: 'field_options.units'\nLABEL: 'label'\nFIELD_TYPE: 'field_type'\nREQUIRED: 'required'\nADMIN_ONLY: 'admin_only'\nOPTIONS: 'field_options.options'\nDESCRIPTION: 'field_options.description'\nINCLUDE_OTHER: 'field_options.include_other_option'\nINCLUDE_BLANK: 'field_options.include_blank_option'\nINTEGER_ONLY: 'field_options.integer_only'\nMIN: 'field_options.min'\nMAX: 'field_options.max'\nMINLENGTH: 'field_options.minlength'\nMAXLENGTH: 'field_options.maxlength'\nLENGTH_UNITS: 'field_options.min_max_length_units'\n```\n\nWhich outputs JSON that looks something like:\n\n```javascript\n[{\n    \"label\": \"Please enter your clearance number\",\n    \"field_type\": \"text\",\n    \"required\": true,\n    \"field_options\": {},\n    \"cid\": \"c6\"\n}, {\n    \"label\": \"Security personnel #82?\",\n    \"field_type\": \"radio\",\n    \"required\": true,\n    \"field_options\": {\n        \"options\": [{\n            \"label\": \"Yes\",\n            \"checked\": false\n        }, {\n            \"label\": \"No\",\n            \"checked\": false\n        }],\n        \"include_other_option\": true\n    },\n    \"cid\": \"c10\"\n}, {\n    \"label\": \"Medical history\",\n    \"field_type\": \"file\",\n    \"required\": true,\n    \"field_options\": {},\n    \"cid\": \"c14\"\n}]\n```\n\n## Events\nMore coming soon...\n\n#### `save`\n```\nvar builder = new Formbuilder({ selector: '#formbuilder' });\n\nbuilder.on('save', function(payload){\n  ...\n});\n```\n\n## Questions?\n\nHave a question about Formbuilder? Feel free to [open a GitHub Issue](https://github.com/dobtco/formbuilder/issues/new) before emailing one of us directly. That way, folks who have the same question can see our communication.\n\n## Developing\nYou'll need [node and npm](http://nodejs.org/) installed.\n\n1. `npm install`\n2. `bower install`\n3. `grunt watch`\n4. open `index.html` and you're all set!\n\n## License\nMIT\n",
+  "readmeFilename": "README.md",
+  "_id": "formbuilder@0.2.1",
+  "_shasum": "badb86a069ad882ec4308461589691502a06f82c",
+  "_resolved": "https://github.com/ribeiroct/formbuilder/archive/gh-pages.tar.gz",
+  "_from": "https://github.com/ribeiroct/formbuilder/archive/gh-pages.tar.gz"
 }
